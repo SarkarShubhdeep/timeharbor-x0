@@ -304,4 +304,8 @@
     </div>
     <form method="dialog" class="modal-backdrop bg-black/50"><button type="button" onclick="document.getElementById('layoutClockOutModal').close()">close</button></form>
   </dialog>
+
+  {{#if ollamaChatEnabled}}
+    {{> ollamaChat}}
+  {{/if}}
 </template>

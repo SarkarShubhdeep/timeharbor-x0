@@ -609,6 +609,52 @@ npx web-push generate-vapid-keys
 }
 ```
 
+### Ozwell AI Chat (optional)
+
+TimeHarbor can show the [Ozwell](https://mieweb.github.io/ozwellai-api/) AI chat widget for logged-in users. When configured, a floating chat button appears on all main app pages (Home, Teams, Tickets, etc.).
+
+1. Obtain a **scoped API key** and **agent ID** from your Ozwell provider (see [Ozwell API documentation](https://mieweb.github.io/ozwellai-api/) and [ozwellai-api repo](https://github.com/mieweb/ozwellai-api)).
+2. Add them to `settings.json` under `public.ozwell` (see `settings.json.example` for the shape):
+
+```json
+{
+  "public": {
+    "ozwell": {
+      "apiKey": "ozw_scoped_...",
+      "agentId": "agent_123"
+    }
+  }
+}
+```
+
+If `ozwell.apiKey` or `ozwell.agentId` is missing, the widget is not loaded and the app runs as before.
+
+### Ollama AI Chat (optional, local)
+
+When the Ozwell dashboard is not available, you can use [Ollama](https://ollama.com) for a local AI chat. No API key is required; the app talks to Ollama on your machine via an [OpenAI-compatible API](https://docs.ollama.com/api/openai-compatibility).
+
+1. Install [Ollama](https://ollama.com) and run it (default: `http://localhost:11434`).
+2. Pull a model, e.g. `ollama pull gemma3:4b` (or any model; use its exact name in config).
+3. In `settings.json`, set `public.ollama.enabled` to `true` and optionally set `public.ollama.defaultModel` and `private.ollama.baseUrl` (see `settings.json.example`):
+
+```json
+{
+  "public": {
+    "ollama": {
+      "enabled": true,
+      "defaultModel": "gemma3:4b"
+    }
+  },
+  "private": {
+    "ollama": {
+      "baseUrl": "http://localhost:11434"
+    }
+  }
+}
+```
+
+A floating "AI Chat" button appears for logged-in users; clicking it opens a chat panel that sends messages to your local Ollama model.
+
 ### Tailwind CSS Customization
 
 Edit `tailwind.config.js` to customize theme:

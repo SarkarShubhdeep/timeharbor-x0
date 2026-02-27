@@ -17,6 +17,7 @@ import './components/member/MemberActivityPage.html';
 import './components/guide/UserGuide.html';
 import './components/notifications/NotificationInboxPage.html';
 import './components/profile/ProfilePage.html';
+import './components/ollama/OllamaChat.html';
 
 // Import component JS files
 import './components/auth/AuthPage.js';
@@ -31,6 +32,7 @@ import './components/member/MemberActivityPage.js';
 import './components/guide/UserGuide.js';
 import './components/notifications/NotificationInboxPage.js';
 import './components/profile/ProfilePage.js';
+import './components/ollama/OllamaChat.js';
 
 // Import routing configuration
 import './routes.js';

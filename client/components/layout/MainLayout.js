@@ -283,6 +283,9 @@ if (Template.mainLayout) {
       if (email) return email.slice(0, 2).toUpperCase();
       return '?';
     },
+    ollamaChatEnabled() {
+      return !!Meteor.settings.public?.ollama?.enabled;
+    },
   });
 
   // Helper to close mobile menu
@@ -543,6 +546,20 @@ if (Template.mainLayout) {
 
   // Update theme icon on template render
   Template.mainLayout.onRendered(function() {
+    // Load Ozwell chat widget when config is present (optional)
+    const ozwell = Meteor.settings.public?.ozwell;
+    const apiKey = ozwell?.apiKey;
+    const agentId = ozwell?.agentId;
+    if (apiKey && agentId && !document.getElementById('ozwell-embed-script')) {
+      const script = document.createElement('script');
+      script.id = 'ozwell-embed-script';
+      script.src = 'https://cdn.ozwell.ai/embed.js';
+      script.setAttribute('data-api-key', apiKey);
+      script.setAttribute('data-agent-id', agentId);
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const icon = document.getElementById('themeIcon');
     if (icon) {

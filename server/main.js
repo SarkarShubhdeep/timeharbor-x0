@@ -13,6 +13,7 @@ import { clockEventMethods } from './methods/clockEvents.js';
 // Import GitHub integration methods
 import { githubMethods } from './methods/github.js';
 import { messageMethods } from './methods/messages.js';
+import { ollamaMethods } from './methods/ollama.js';
 // Import calendar methods
 import './methods/calendar.js';
 // Import notification methods
@@ -394,6 +395,7 @@ Meteor.methods({
   ...notificationMethods,
   ...messageMethods,
   ...githubMethods,
+  ...ollamaMethods,
 
   'participants.create'(name) {
     check(name, String);
