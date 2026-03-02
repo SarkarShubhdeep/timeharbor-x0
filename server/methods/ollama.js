@@ -1,9 +1,14 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import axios from 'axios';
+import { buildJerryContext } from '../utils/jerryContext.js';
 
 const DEFAULT_BASE_URL = 'http://localhost:11434';
 const DEFAULT_MODEL = 'gemma3:4b';
+
+const JERRY_SYSTEM_PREFIX = `You are Jerry AI, the TimeHarbor assistant. Use only the following data about the user's tickets and work sessions to answer. If the question cannot be answered from this data, say so. Do not make up data.
+
+`;
 
 export const ollamaMethods = {
   async 'ollama/chat'({ model, messages }) {
@@ -11,11 +16,18 @@ export const ollamaMethods = {
     if (model !== undefined) check(model, String);
     if (!this.userId) throw new Meteor.Error('not-authorized', 'You must be logged in to use the chat.');
 
+    const contextString = await buildJerryContext(this.userId);
+    const systemContent = JERRY_SYSTEM_PREFIX + contextString;
+    const messagesWithContext = [
+      { role: 'system', content: systemContent },
+      ...messages,
+    ];
+
     const baseUrl = (Meteor.settings.private?.ollama?.baseUrl || DEFAULT_BASE_URL).replace(/\/$/, '');
     const resolvedModel = model || Meteor.settings.private?.ollama?.defaultModel || Meteor.settings.public?.ollama?.defaultModel || DEFAULT_MODEL;
 
     const url = `${baseUrl}/v1/chat/completions`;
-    const body = { model: resolvedModel, messages };
+    const body = { model: resolvedModel, messages: messagesWithContext };
 
     try {
       const response = await axios.post(url, body, {

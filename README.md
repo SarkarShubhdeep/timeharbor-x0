@@ -629,9 +629,9 @@ TimeHarbor can show the [Ozwell](https://mieweb.github.io/ozwellai-api/) AI chat
 
 If `ozwell.apiKey` or `ozwell.agentId` is missing, the widget is not loaded and the app runs as before.
 
-### Ollama AI Chat (optional, local)
+### Jerry AI (optional, local)
 
-When the Ozwell dashboard is not available, you can use [Ollama](https://ollama.com) for a local AI chat. No API key is required; the app talks to Ollama on your machine via an [OpenAI-compatible API](https://docs.ollama.com/api/openai-compatibility).
+**Jerry AI** is the in-app assistant that can answer questions about your tickets and work sessions. When the Ozwell dashboard is not available, Jerry runs locally using [Ollama](https://ollama.com). No API key is required; the app talks to Ollama on your machine via an [OpenAI-compatible API](https://docs.ollama.com/api/openai-compatibility).
 
 1. Install [Ollama](https://ollama.com) and run it (default: `http://localhost:11434`).
 2. Pull a model, e.g. `ollama pull gemma3:4b` (or any model; use its exact name in config).
@@ -653,7 +653,7 @@ When the Ozwell dashboard is not available, you can use [Ollama](https://ollama.
 }
 ```
 
-A floating "AI Chat" button appears for logged-in users; clicking it opens a chat panel that sends messages to your local Ollama model.
+A floating Jerry AI button appears for logged-in users; clicking it opens a chat panel. Jerry has access to your tickets and work sessions and can answer questions like "What tickets do I have?", "Am I clocked in?", and "How much time did I log on X?"
 
 ### Tailwind CSS Customization
 
