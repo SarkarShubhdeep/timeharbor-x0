@@ -631,7 +631,9 @@ If `ozwell.apiKey` or `ozwell.agentId` is missing, the widget is not loaded and 
 
 ### Jerry AI (optional, local)
 
-**Jerry AI** is the in-app assistant that can answer questions about your tickets and work sessions. When the Ozwell dashboard is not available, Jerry runs locally using [Ollama](https://ollama.com). No API key is required; the app talks to Ollama on your machine via an [OpenAI-compatible API](https://docs.ollama.com/api/openai-compatibility).
+**Jerry AI** is the in-app assistant that can answer questions about your tickets and work sessions and (optionally) take simple actions on your behalf.
+
+When the Ozwell dashboard is not available, Jerry runs locally using [Ollama](https://ollama.com). No API key is required; the app talks to Ollama on your machine via an [OpenAI-compatible API](https://docs.ollama.com/api/openai-compatibility).
 
 1. Install [Ollama](https://ollama.com) and run it (default: `http://localhost:11434`).
 2. Pull a model, e.g. `ollama pull gemma3:4b` (or any model; use its exact name in config).
@@ -654,6 +656,14 @@ If `ozwell.apiKey` or `ozwell.agentId` is missing, the widget is not loaded and 
 ```
 
 A floating Jerry AI button appears for logged-in users; clicking it opens a chat panel. Jerry has access to your tickets and work sessions and can answer questions like "What tickets do I have?", "Am I clocked in?", and "How much time did I log on X?"
+
+In addition to answering questions, Jerry can perform a few **safe actions** for the current user:
+
+- Create a new ticket in one of your teams (e.g. "Create a ticket in Team Alpha called Fix login bug with this description: ...").
+- Clock you in or out of a team (e.g. "Clock me into Team Alpha", "Clock me out").
+- Update basic ticket fields you own (title, description, GitHub link) when you refer to an existing ticket by name.
+
+All actions go through the server’s existing authorization rules and are scoped only to teams and tickets that you belong to.
 
 ### Tailwind CSS Customization
 
