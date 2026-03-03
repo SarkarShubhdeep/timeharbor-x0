@@ -1,14 +1,23 @@
 <template name="ollamaChat">
-  <div class="ollama-chat-widget fixed bottom-24 right-6 z-50 md:bottom-28 md:right-8 flex flex-col items-end gap-2">
-    {{#if panelOpen}}
-      <div class="ollama-chat-panel w-full max-w-md md:w-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl flex flex-col max-h-[70vh]">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl">
-          <span class="font-semibold text-gray-900 dark:text-white">Jerry AI</span>
+  {{#if panelOpen}}
+    {{#if panelMode}}
+      <!-- Full-height right-side panel -->
+      <div class="fixed top-20 bottom-0 right-0 z-50 w-full sm:w-80 md:w-96 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-gray-900 dark:text-white">Jerry AI</span>
+            <button type="button" class="ollama-chat-collapse p-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Collapse Jerry AI panel">
+              <!-- Collapse (arrows-in) icon -->
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h2a2 2 0 012 2v2M15 19h-2a2 2 0 01-2-2v-2M5 9v2a2 2 0 002 2h2M19 15v-2a2 2 0 00-2-2h-2" />
+              </svg>
+            </button>
+          </div>
           <button type="button" class="ollama-chat-close p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Close chat">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
-        <div class="ollama-chat-messages flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px]">
+        <div class="ollama-chat-messages flex-1 overflow-y-auto p-4 space-y-3">
           {{#if hasNoMessages}}
             <p class="text-sm text-gray-500 dark:text-gray-400">Ask about your tickets and work sessions.</p>
           {{/if}}
@@ -25,7 +34,7 @@
             </div>
           {{/if}}
         </div>
-        <div class="p-3 border-t border-gray-200 dark:border-gray-700 rounded-b-2xl">
+        <div class="p-3 border-t border-gray-200 dark:border-gray-700">
           <form class="ollama-chat-form flex gap-2">
             <input type="text" class="ollama-chat-input flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm" placeholder="Type a message…" autocomplete="off" />
             <button type="submit" class="ollama-chat-send px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50" {{disabledWhileLoading}}>Send</button>
@@ -35,9 +44,57 @@
           {{/if}}
         </div>
       </div>
+    {{else}}
+      <!-- Floating chat panel -->
+      <div class="ollama-chat-widget fixed bottom-24 right-6 z-50 md:bottom-28 md:right-8 flex flex-col items-end gap-2">
+        <div class="ollama-chat-panel w-full max-w-md md:w-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl flex flex-col max-h-[70vh]">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-gray-900 dark:text-white">Jerry AI</span>
+              <button type="button" class="ollama-chat-expand p-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Expand Jerry AI panel">
+                <!-- Expand (arrows-out) icon -->
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9V5a1 1 0 011-1h4M20 15v4a1 1 0 01-1 1h-4M15 4h4a1 1 0 011 1v4M4 15v4a1 1 0 001 1h4" />
+                </svg>
+              </button>
+            </div>
+            <button type="button" class="ollama-chat-close p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Close chat">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div class="ollama-chat-messages flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px]">
+            {{#if hasNoMessages}}
+              <p class="text-sm text-gray-500 dark:text-gray-400">Ask about your tickets and work sessions.</p>
+            {{/if}}
+            {{#each messages}}
+              <div class="flex {{#if isUser}}justify-end{{else}}justify-start{{/if}}">
+                <div class="max-w-[85%] rounded-xl px-3 py-2 text-sm {{#if isUser}}bg-blue-600 text-white{{else}}bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white{{/if}}">
+                  <span class="whitespace-pre-wrap">{{content}}</span>
+                </div>
+              </div>
+            {{/each}}
+            {{#if isLoading}}
+              <div class="flex justify-start">
+                <div class="rounded-xl px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm">Thinking…</div>
+              </div>
+            {{/if}}
+          </div>
+          <div class="p-3 border-t border-gray-200 dark:border-gray-700 rounded-b-2xl">
+            <form class="ollama-chat-form flex gap-2">
+              <input type="text" class="ollama-chat-input flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm" placeholder="Type a message…" autocomplete="off" />
+              <button type="submit" class="ollama-chat-send px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50" {{disabledWhileLoading}}>Send</button>
+            </form>
+            {{#if errorMessage}}
+              <p class="mt-2 text-xs text-red-600 dark:text-red-400">{{errorMessage}}</p>
+            {{/if}}
+          </div>
+        </div>
+      </div>
     {{/if}}
-    <button type="button" class="ollama-chat-toggle flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" aria-label="Open Jerry AI">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-    </button>
-  </div>
+  {{/if}}
+
+  <!-- Floating toggle button (always bottom-right) -->
+  <button type="button" class="ollama-chat-toggle fixed bottom-24 right-6 z-40 md:bottom-28 md:right-8 flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" aria-label="Open Jerry AI">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+  </button>
 </template>

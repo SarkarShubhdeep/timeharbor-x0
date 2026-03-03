@@ -6,6 +6,9 @@ const panelOpen = new ReactiveVar(false);
 const messages = new ReactiveVar([]);
 const isLoading = new ReactiveVar(false);
 const errorMessage = new ReactiveVar('');
+const panelMode = new ReactiveVar(false); // false = floating, true = full-height side panel
+
+const PANEL_MODE_KEY = 'jerry-chat-mode';
 
 function getDefaultModel() {
   return Meteor.settings.public?.ollama?.defaultModel || 'gemma3:4b';
@@ -15,11 +18,22 @@ if (Template.ollamaChat) {
   Template.ollamaChat.onCreated(function () {
     messages.set([]);
     errorMessage.set('');
+
+    // Restore preferred layout mode
+    try {
+      const saved = (typeof localStorage !== 'undefined') ? localStorage.getItem(PANEL_MODE_KEY) : null;
+      panelMode.set(saved === 'panel');
+    } catch (e) {
+      panelMode.set(false);
+    }
   });
 
   Template.ollamaChat.helpers({
     panelOpen() {
       return panelOpen.get();
+    },
+    panelMode() {
+      return panelMode.get();
     },
     messages() {
       return messages.get().map((m) => ({
@@ -56,6 +70,28 @@ if (Template.ollamaChat) {
     'click .ollama-chat-toggle'() {
       panelOpen.set(!panelOpen.get());
       errorMessage.set('');
+    },
+    'click .ollama-chat-expand'() {
+      panelMode.set(true);
+      panelOpen.set(true);
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(PANEL_MODE_KEY, 'panel');
+        }
+      } catch (e) {
+        // ignore storage errors
+      }
+    },
+    'click .ollama-chat-collapse'() {
+      panelMode.set(false);
+      panelOpen.set(true);
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(PANEL_MODE_KEY, 'floating');
+        }
+      } catch (e) {
+        // ignore storage errors
+      }
     },
     'click .ollama-chat-close'() {
       panelOpen.set(false);
