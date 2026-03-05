@@ -8,10 +8,17 @@ const DEFAULT_BASE_URL = 'http://localhost:11434';
 const DEFAULT_MODEL = 'gemma3:4b';
 
 const ACTION_SCHEMA_TEXT = `
-Jerry can optionally perform actions for the user. When the user explicitly asks you to create a ticket, clock in, clock out, or update a ticket, you MUST respond with ONLY a JSON object (no extra text, NO backticks or code fences) using this schema:
+Jerry can optionally perform actions for the user. When the user explicitly asks you to create a ticket, clock in, clock out, start a ticket, update a ticket, or stop a ticket, you MUST respond with ONLY a JSON object (no extra text, NO backticks or code fences) using this schema.
+
+This is CRITICAL:
+- If the user says things like "start", "stop", "end", "pause", "resume", "clock in", "clock out", or "change/update a ticket", you MUST use an action JSON response.
+- NEVER say things like "I started/stopped/updated the ticket" in natural language unless you actually responded with a JSON action object as described below.
+- For general questions (e.g., "Which ticket am I working on?", "What did I work on last?"), answer in normal natural language and DO NOT output JSON.
+
+Action schema:
 
 {
-  "action": "create_ticket" | "clock_in" | "clock_out" | "update_ticket" | "none",
+  "action": "create_ticket" | "clock_in" | "clock_out" | "start_ticket" | "update_ticket" | "stop_ticket" | "assign_ticket" | "none",
   "parameters": {
     // for create_ticket:
     //   "teamName" or "teamCode": string
@@ -26,14 +33,53 @@ Jerry can optionally perform actions for the user. When the user explicitly asks
     //   "teamName" or "teamCode" (optional)
     //   "youtubeShortLink"?: string
     //
+    // for start_ticket:
+    //   // Start timing work on a specific ticket (and auto-clock-in to that team if needed)
+    //   // Preferred:
+    //   //   "ticketTitle": string           // title of the ticket to start
+    //   //   "teamName" or "teamCode" (optional to disambiguate)
+    //   // If the user clearly says "start my last worked ticket", you may omit ticketTitle and use:
+    //   //   "lastWorked": true
+    //   // You MAY also use "current": true here to mean "most relevant/last worked" when no title is given.
+    //
+    // for stop_ticket:
+    //   // stop a single running ticket WITHOUT clocking out of the work session
+    //   // Preferred:
+    //   //   "current": true           // stop whichever ticket is currently running
+    //   // Or:
+    //   //   "ticketTitle": string     // title of the ticket to stop
+    //   //   "teamName" or "teamCode" (optional to disambiguate)
+    //
     // for update_ticket:
-    //   "ticketTitle": string
+    //   // Prefer this more explicit form when renaming:
+    //   //   "currentTitle": string   // current ticket title from context
+    //   //   "newTitle"?: string      // new title to set
+    //   // OR keep backward-compatible:
+    //   //   "ticketTitle": string    // current ticket title
+    //   // In both cases you may also provide:
     //   "teamName" or "teamCode" (optional to disambiguate)
     //   "fields": {
-    //     "title"?: string,
+    //     // Use these for arbitrary property changes:
+    //     "title"?: string,          // new title
     //     "description"?: string,
     //     "github"?: string
     //   }
+    //
+    // for assign_ticket:
+    //   // Change or clear the assignee of a ticket.
+    //   // You MUST first identify the ticket:
+    //   //   "ticketTitle": string           // title of the ticket to change
+    //   //   "teamName" or "teamCode" (optional but recommended to disambiguate)
+    //   //
+    //   // Then specify WHO to assign it to:
+    //   //   "assigneeId"?: string          // preferred when you can see an internal user id in context
+    //   //   "assigneeEmail"?: string       // or use an email address
+    //   //   "assigneeName"?: string        // or a display name contained in the context (for example, "Shubh 0x").
+    //   //   // When the user says "assign me" or "assign this to me",
+    //   //   // use the CURRENT USER from the "Current user" section of the context.
+    //   //
+    //   // To UNASSIGN the ticket (no owner):
+    //   //   "unassign": true               // and omit all assignee* fields
   }
 }
 
@@ -46,7 +92,12 @@ You have access to structured context about the CURRENT USER'S teams, tickets, a
 
 You can either:
 - Answer questions in natural language, OR
-- Propose a single action using the JSON schema below when the user explicitly wants you to create a ticket, clock in, clock out, or update a ticket.
+- Propose a single action using the JSON schema below when the user explicitly wants you to create a ticket, clock in, clock out, START a ticket timer, update a ticket, or stop a ticket.
+
+Important:
+- Use \"start_ticket\" to start timing work on a ticket whose timer is not currently running. This will automatically clock the user in to that team if needed.
+- Use \"stop_ticket\" ONLY to stop a single ticket's timer without ending the overall work session.
+- Use \"clock_out\" ONLY when the user clearly wants to end their current work session.
 
 ${ACTION_SCHEMA_TEXT}
 

@@ -104,7 +104,12 @@ export const ticketMethods = {
       throw new Meteor.Error('not-authorized', 'You can only start your own tickets');
     }
     
-    return await Tickets.updateAsync(ticketId, { $set: { startTimestamp: now } });
+    return await Tickets.updateAsync(ticketId, {
+      $set: {
+        startTimestamp: now,
+        updatedAt: new Date(now),
+      },
+    });
   },
 
   async updateTicketStop(ticketId, now) {
@@ -126,8 +131,11 @@ export const ticketMethods = {
       const elapsed = Math.floor((now - ticket.startTimestamp) / 1000);
       const prev = ticket.accumulatedTime || 0;
       return await Tickets.updateAsync(ticketId, {
-        $set: { accumulatedTime: prev + elapsed },
-        $unset: { startTimestamp: '' }
+        $set: {
+          accumulatedTime: prev + elapsed,
+          updatedAt: new Date(now),
+        },
+        $unset: { startTimestamp: '' },
       });
     }
   },
